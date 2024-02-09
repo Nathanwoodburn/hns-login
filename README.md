@@ -1,6 +1,8 @@
 # varo-openid
 
 ## Add a client
+Go to /create-client and add a new client.
+
 Set the following parameters:
 
 Allowed Scope: `profile`
