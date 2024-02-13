@@ -99,6 +99,21 @@ def create_client():
     db.session.commit()
     return redirect('/')
 
+@bp.route('/delete_client')
+def delete_client():
+    user = current_user()
+    if not user:
+        return redirect('/')
+    if user.id != 1:
+        return redirect('/')
+
+    client_id = request.args.get('client_id')
+    client = OAuth2Client.query.filter_by(client_id=client_id).first()
+    if client:
+        db.session.delete(client)
+        db.session.commit()
+    return redirect('/')
+
 
 @bp.route('/oauth/authorize', methods=['GET', 'POST'])
 def authorize():
