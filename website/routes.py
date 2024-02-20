@@ -152,6 +152,34 @@ def api_me():
                    email= f'{user.username}@login.hns.au',
                    displayName=user.username+"/")
 
+@bp.route('/discovery')
+def autodiscovery():
+    host = request.host
+    discovery = {
+    "issuer": f"https://{host}/",
+    "authorization_endpoint": f"https://{host}/oauth/authorize",
+    "token_endpoint": f"https://{host}/oauth/token",
+    "userinfo_endpoint": f"https://{host}/api/me",
+    "revocation_endpoint": f"https://{host}/oauth/revoke",
+    "response_types_supported": [
+        "code"
+    ],
+    "subject_types_supported": [
+        "public"
+    ],
+    "id_token_signing_alg_values_supported": [
+        "RS256"
+    ],
+    "scopes_supported": [
+        "openid",
+        "email",
+        "profile"
+    ]
+}
+
+
+    return jsonify(discovery)
+
 
 
 @bp.route('/favicon.png')
