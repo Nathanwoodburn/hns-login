@@ -174,6 +174,13 @@ def autodiscovery():
         "openid",
         "email",
         "profile"
+    ],
+    "token_endpoint_auth_methods_supported": [
+        "client_secret_basic",
+        "client_secret_post",
+    ],
+    "grant_types_supported": [
+        "authorization_code"
     ]
 }
 
