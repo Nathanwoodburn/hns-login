@@ -148,8 +148,8 @@ def revoke_token():
 def api_me():
     user = current_token.user
     print(user.id, user.username)
-    return jsonify(id=user.id, username=user.username, 
-                   email="auth+" + user.username + "@hnshosting.au",
+    return jsonify(id=user.id, username=user.username,
+                   email= f'{user.username}@login.hns.au',
                    displayName=user.username+"/")
 
 
