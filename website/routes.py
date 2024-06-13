@@ -144,7 +144,7 @@ def revoke_token():
 
 
 @bp.route('/api/me')
-@require_oauth('profile')
+@require_oauth(['profile', 'openid'])
 def api_me():
     user = current_token.user
     print(user.id, user.username)
