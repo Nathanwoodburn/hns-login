@@ -7,10 +7,18 @@ from authlib.integrations.flask_oauth2 import current_token
 from authlib.oauth2 import OAuth2Error
 from .models import db, User, OAuth2Client
 from .oauth2 import authorization, require_oauth
+import os
+import requests
+import dns.message
+import dns.query
+import dns.rdatatype
+from requests_doh import DNSOverHTTPSSession, add_dns_provider
 
 
 bp = Blueprint("home", __name__)
 
+if not os.path.exists("website/avatars"):
+    os.makedirs("website/avatars")
 
 def current_user():
     if "id" in session:
@@ -148,7 +156,6 @@ def revoke_token():
 @require_oauth(["profile", "openid"])
 def api_me():
     user = current_token.user
-    print(user.id, user.username, flush=True)
     userInfo = {
         "id": user.id,
         "uid": user.id,
@@ -162,33 +169,10 @@ def api_me():
         "nickname": user.username,
         "preferred_username": user.username,
         "profile": f"https://login.hns.au/u/{user.username}",
-        "picture": f"https://login.hns.au/u/{user.username}/avatar",
+        "picture": f"https://login.hns.au/u/{user.username}/avatar.png",
         "website": f"https://{user.username}",
         "email_verified": True
     }
-    print(userInfo, flush=True)
-    # a = [
-    #     "sub",
-    #     "name",
-    #     "given_name",
-    #     "family_name",
-    #     "middle_name",
-    #     "nickname",
-    #     "preferred_username",
-    #     "profile",
-    #     "picture",
-    #     "website",
-    #     "email",
-    #     "email_verified",
-    #     "gender",
-    #     "birthdate",
-    #     "zoneinfo",
-    #     "locale",
-    #     "phone_number",
-    #     "phone_number_verified",
-    #     "address",
-    #     "updated_at",
-    # ]
     return jsonify(userInfo)
 
 
@@ -213,6 +197,51 @@ def autodiscovery():
     }
 
     return jsonify(discovery)
+
+@bp.route("/u/<username>")
+def profile(username):
+    user = User.query.filter_by(username=username).first()
+    return jsonify({"name": user.username, "id": user.id})
+
+@bp.route("/u/<username>/avatar.png")
+def avatar(username):
+    # Check if file exists
+    if os.path.exists(f"website/avatars/{username}.png"):
+        return send_from_directory("avatars", f"{username}.png", mimetype="image/png")
+    # If not, download from HNS info
+    query = dns.message.make_query(username, dns.rdatatype.TXT)
+    dns_request = query.to_wire()
+
+    # Send the DNS query over HTTPS
+    response = requests.post('https://hnsdoh.com/dns-query', data=dns_request, headers={'Content-Type': 'application/dns-message'})
+
+    # Parse the DNS response
+    dns_response = dns.message.from_wire(response.content)
+
+    # Loop over TXT records and look for profile avatar
+    avatar_url=""
+    for record in dns_response.answer:
+        if record.rdtype == dns.rdatatype.TXT:
+            for txt in record:
+                txt_value = txt.to_text().strip('"')
+                if txt_value.startswith("profile avatar="):
+                    avatar_url = txt_value.split("profile avatar=")[1]
+                    break
+    
+    if avatar_url != "":
+        # Download the avatar using DNS-over-HTTPS
+        add_dns_provider("hns", "https://hnsdoh.com/dns-query")
+        session = DNSOverHTTPSSession(provider="hns")
+        response = session.get(avatar_url)
+        with open(f"website/avatars/{username}.png", "wb") as f:
+            f.write(response.content)
+        return send_from_directory("avatars", f"{username}.png", mimetype="image/png")
+
+    return send_from_directory("templates", "favicon.png", mimetype="image/png")
+    
+
+
+    
 
 
 @bp.route("/favicon.png")

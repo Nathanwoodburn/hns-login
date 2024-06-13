@@ -2,3 +2,5 @@ Flask
 Flask-SQLAlchemy
 Authlib
 requests
+dnspython
+requests-doh
