@@ -151,6 +151,7 @@ def api_me():
     print(user.id, user.username, flush=True)
     userInfo = {
         "id": user.id,
+        "uid": user.id,
         "username": user.username,
         "email": f"{user.username}@login.hns.au",
         "displayName": user.username + "/",
@@ -162,7 +163,8 @@ def api_me():
         "preferred_username": user.username,
         "profile": f"https://login.hns.au/u/{user.username}",
         "picture": f"https://login.hns.au/u/{user.username}/avatar",
-        "website": f"https://{user.username}"
+        "website": f"https://{user.username}",
+        "email_verified": True
     }
     print(userInfo, flush=True)
     # a = [
