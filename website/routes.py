@@ -60,6 +60,10 @@ def home():
     user = current_user()
     if user:
         clients = OAuth2Client.query.filter_by(user_id=user.id).all()
+
+        if user.id == 1:
+            clients = OAuth2Client.query.all()
+
         if next_page:
             return redirect(next_page)
     else:
