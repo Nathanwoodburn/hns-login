@@ -12,13 +12,17 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(40), unique=True)
+    profile_picture = db.Column(db.String(255), nullable=True)
 
     def __str__(self):
         return self.username
 
     def get_user_id(self):
         return self.id
-
+    
+    def get_user_profile_picture(self):
+        return self.profile_picture
+    
     def check_password(self, password):
         return password == 'valid'
 

@@ -119,7 +119,8 @@ def hnsid_domain(domain):
             # Add domain to the session
             user = User.query.filter_by(username=domain).first()
             if not user:
-                user = User(username=domain)
+                # Create user with username and profile picture
+                user = User(username=domain, profile_picture=nft["image_url"])
                 db.session.add(user)
                 db.session.commit()
             session["id"] = user.id
@@ -230,6 +231,11 @@ def revoke_token():
 @require_oauth(["profile", "openid"])
 def api_me():
     user = current_token.user
+    picture = f"https://login.hns.au/u/{user.username}/avatar.png"
+
+    if user.profile_picture:
+        picture = user.profile_picture
+
     userInfo = {
         "id": user.id,
         "uid": user.id,
@@ -243,7 +249,7 @@ def api_me():
         "nickname": user.username,
         "preferred_username": user.username,
         "profile": f"https://login.hns.au/u/{user.username}",
-        "picture": f"https://login.hns.au/u/{user.username}/avatar.png",
+        "picture": picture,
         "website": f"https://{user.username}",
         "email_verified": True
     }
@@ -275,10 +281,39 @@ def autodiscovery():
 @bp.route("/u/<username>")
 def profile(username):
     user = User.query.filter_by(username=username).first()
-    return jsonify({"name": user.username, "id": user.id})
+    if not user:
+        return jsonify({"error": "User not found"})
+    picture = f"https://login.hns.au/u/{user.username}/avatar.png"
+
+    if user.profile_picture:
+        picture = user.profile_picture
+
+    userInfo = {
+        "id": user.id,
+        "uid": user.id,
+        "username": user.username,
+        "email": f"{user.username}@login.hns.au",
+        "displayName": user.username + "/",
+        "sub": user.id,
+        "name": user.username,
+        "given_name": user.username,
+        "family_name": user.username,
+        "nickname": user.username,
+        "preferred_username": user.username,
+        "profile": f"https://login.hns.au/u/{user.username}",
+        "picture": picture,
+        "website": f"https://{user.username}",
+        "email_verified": True
+    }
+    return jsonify(userInfo)
 
 @bp.route("/u/<username>/avatar.png")
 def avatar(username):
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        print("User not found")
+        return send_from_directory("templates", "favicon.png", mimetype="image/png")
+    
     # Check if file exists
     if os.path.exists(f"website/avatars/{username}.png"):
         return send_from_directory("avatars", f"{username}.png", mimetype="image/png")
