@@ -124,6 +124,12 @@ def hnsid_domain(domain):
                 db.session.commit()
             session["id"] = user.id
             session.permanent = True
+
+            # Check if next page is specified
+            next_page = request.args.get("next")
+            if next_page:
+                return redirect(next_page)
+
             return redirect("/")
 
     return jsonify({"success": False, "error": "Domain not found"})
