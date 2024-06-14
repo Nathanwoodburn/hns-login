@@ -70,7 +70,7 @@ def home():
     address=''
     if "address" in session:
         address = session["address"]
-        openseaInfo = requests.get("https://api.opensea.io/api/v2/chain/optimism/account/{address}/nfts?collection=handshake-slds",
+        openseaInfo = requests.get(f"https://api.opensea.io/api/v2/chain/optimism/account/{address}/nfts?collection=handshake-slds",
             headers={"Accept": "application/json",
                      "x-api-key":openSeaAPIKey})
         if openseaInfo.status_code == 200:
