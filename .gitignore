@@ -4,3 +4,5 @@ __pycache__/
 instance/
 
 website/avatars/
+
+.env

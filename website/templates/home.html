@@ -1,80 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HNS Login</title>
   <link rel="icon" href="favicon.png" type="image/png">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            /* Dark theme*/
-            background-color: #222;
-            color: #fff;
-        }
-        h1 {
-            margin: 0;
-            padding: 20px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-        }
-        h2 {
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        p {
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        form {
-            text-align: center;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-        a.button {
-            display: block;
-            width: 200px;
-            margin: 20px auto;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-        }
-        button.loginbutton {
-            /* Put in the centre of the screen */
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      /* Dark theme*/
+      background-color: #222;
+      color: #fff;
+    }
 
-            margin-left: 50%;
-            transform: translateX(-50%);
-        }
-    </style>
+    h1 {
+      margin: 0;
+      padding: 20px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+    }
+
+    h2 {
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    p {
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    form {
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    a.button {
+      display: block;
+      width: 200px;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    button.loginbutton {
+      /* Put in the centre of the screen */
+
+      margin-left: 50%;
+      margin-top: 20px;
+      transform: translateX(-50%);
+    }
+
+    .login-option {
+      margin-top: 20px;
+    }
+    select {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        margin-right: 25px;
+    }
+
+  </style>
 </head>
+
 <body>
-<h1>HNS Login</h1>
+  <h1>HNS Login</h1>
 
-{% if user %}
+  {% if user %}
 
-<h2>You are currently logged in as <strong>{{ user }}/</strong></h2>
+  <h2>You are currently logged in as <strong>{{ user }}/</strong></h2>
 
 
-<a href="{{ url_for('.logout') }}" class="button">Log Out</a>
+  <a href="{{ url_for('.logout') }}" class="button">Log Out</a>
 
-{% for client in clients %}
-<pre>
+  {% for client in clients %}
+  <pre>
 <strong>Client Info</strong>
   {%- for key in client.client_info %}
   <strong>{{ key }}: </strong>{{ client.client_info[key] }}
@@ -84,36 +108,133 @@
   <strong>{{ key }}: </strong>{{ client.client_metadata[key] }}
   {%- endfor %}
 </pre>
-<hr>
-{% endfor %}
+  <hr>
+  {% endfor %}
 
-<br><br>
-<p>Want to implement OAuth?<br>
-Contact Nathan.Woodburn/ on any social media platform</p>
+  <br><br>
+  <p>Want to implement OAuth?<br>
+    Contact Nathan.Woodburn/ on any social media platform</p>
 
-{% else %}
-<h2>Login with your Handshake domain</h2>
-<p>If you have already used Varo Auth, you can just select the domain you want to login with.</p>
-
+  {% else %}
+  <h2>Login with your Handshake domain</h2>
 
 
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script type="text/javascript" src="https://auth.varo.domains/v1"></script>
-<script>var varo = new Varo();</script>
-<button class="loginbutton" onclick='varo.auth().then(auth => {
+
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+  <div class="login-option">
+    <script type="text/javascript" src="https://auth.varo.domains/v1"></script>
+    <script>var varo = new Varo();</script>
+    <button class="loginbutton" onclick='varo.auth().then(auth => {
   if (auth.success) {
   // handle success by calling your api to update the users session
   $.post("/", JSON.stringify(auth.data), (response) => {
     window.location.reload();
   });
   }
-});'>Login</button>
-{% endif %}
+});'>Login with Varo</button>
+  </div>
 
+  <div class="login-option">
+    <!-- Login for HNS.ID domains -->
+    <script>
+      async function loginETH() {
+        if (typeof window.ethereum === 'undefined') {
+          alert('Please install MetaMask to use this feature');
+          return;
+        }
+        try {
+          // Check if the user is already connected
+          const accounts = await ethereum.request({ method: 'eth_accounts' });
+          var address = '';
+          if (accounts.length > 0) {
+            console.log('Already connected', accounts[0]);
+            address = accounts[0];
+          } else {
+            console.log('Not connected yet');
+            // Request connection
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            if (accounts.length > 0) {
+              address = accounts[0];
+              console.log('Connected', accounts[0]);
+            }
+          }
+          if (address != '') {
+            // Send the address to the server
+            console.log('Sending address to server', address);
+            // Sign a message
+            const message = 'I am signing my one-time nonce: ' + Math.floor(Math.random() * 1000000) + ' to log in to HNS Login as ' + address;
+            const signature = await ethereum.request({
+              method: 'personal_sign',
+              params: [message, address],
+            });
+            console.log('Signature', signature);
+            // Redirect user to choose a domain to log in with
+            $.ajax({
+              url: '/hnsid',
+              type: 'POST',
+              contentType: 'application/json',
+              data: JSON.stringify({ address: address, signature: signature, message: message }),
+              dataType: 'json',
+              success: function (response) {
+                console.log('Response', response);
+                if (response.success) {
+                  window.location.reload();
+                }
+              }
+            });
+
+          }
+
+
+
+        } catch (error) {
+          console.error('Error checking connection status', error);
+        }
+
+      }
+
+    </script>
+
+
+    {% if address %}
+    <h4 style="text-align: center;">Logged in as {{address}}</h4>
+    <span style="text-align: center;display: block;">Select a HNS.ID domain to log in with</span><br>
+
+    <div style="text-align: center;">
+    <select id="nftDropdown">
+      {% for nft in hnsid.nfts %}
+          <option value="{{nft.name}}">{{nft.name}}</option>
+      {% endfor %}
+  </select>
+  <button onclick="HNSIDLoginSelect()">Login</button>
+</div>
+  <script>
+      function HNSIDLoginSelect() {
+          var selectedNFT = document.getElementById("nftDropdown").value;
+          window.location.href = "/hnsid/" + selectedNFT;
+      }
+  </script>
   
 
-<div style="position: fixed; bottom: 0; width: 100%; text-align: center; background-color: #333; padding: 10px;">
-  Powered by <a href="https://auth.varo.domains/implement" target="_blank">Varo Auth</a> and <a href="https://nathan.woodburn.au" target="_blank">Nathan.Woodburn/</a>
-</div>
+    <button class="loginbutton" onclick='javascript:loginETH();'>Login with another ETH address</button>
+    {% else %}
+    <button class="loginbutton" onclick='javascript:loginETH();'>Login with HNS.ID</button>
+    {% endif %}
+
+
+  </div>
+
+
+  {% endif %}
+
+
+
+  <div style="position: fixed; bottom: 0; width: 100%; text-align: center; background-color: #333; padding: 10px;">
+    Powered by <a href="https://auth.varo.domains/implement" target="_blank">Varo Auth</a> and <a
+      href="https://nathan.woodburn.au" target="_blank">Nathan.Woodburn/</a>
+  </div>
 </body>
+
 </html>

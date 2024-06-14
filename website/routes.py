@@ -13,9 +13,15 @@ import dns.message
 import dns.query
 import dns.rdatatype
 from requests_doh import DNSOverHTTPSSession, add_dns_provider
+from datetime import timedelta
+from eth_account.messages import encode_defunct
+from eth_account import Account
+
 
 
 bp = Blueprint("home", __name__)
+openSeaAPIKey = os.getenv("OPENSEA_API_KEY")
+
 
 if not os.path.exists("website/avatars"):
     os.makedirs("website/avatars")
@@ -45,6 +51,8 @@ def home():
             db.session.add(user)
             db.session.commit()
         session["id"] = user.id
+        # Make sure the session is permanent
+        session.permanent = True
         # if user is not just to log in, but need to head back to the auth page, then go for it
         if next_page:
             return redirect(next_page)
@@ -57,8 +65,68 @@ def home():
     else:
         clients = []
 
-    return render_template("home.html", user=user, clients=clients)
+    # Check if the user has signed in with HNS ID
+    hnsid=''
+    address=''
+    if "address" in session:
+        address = session["address"]
+        openseaInfo = requests.get("https://api.opensea.io/api/v2/chain/optimism/account/{address}/nfts?collection=handshake-slds",
+            headers={"Accept": "application/json",
+                     "x-api-key":openSeaAPIKey})
+        if openseaInfo.status_code == 200:
+            hnsid = openseaInfo.json()
 
+    
+
+    return render_template("home.html", user=user, clients=clients, address=address, hnsid=hnsid)
+
+@bp.route("/hnsid", methods=["POST"])
+def hnsid():
+    # Get address and signature from the request
+    address = request.json.get("address")
+    signature = request.json.get("signature")
+    message = request.json.get("message")
+    # Verify the signature
+    msg = encode_defunct(text=message)
+    signer = Account.recover_message(msg, signature=signature).lower()
+    if signer != address:
+        print("Signature verification failed")
+        print(signer, address)
+        return jsonify({"success": False})
+
+    # Save the address in the session
+    session["address"] = address
+    session.permanent = True
+
+    return jsonify({"success": True})
+
+@bp.route("/hnsid/<domain>")
+def hnsid_domain(domain):
+    # Get the address from the session
+    address = session.get("address")
+    if not address:
+        return jsonify({"error": "No address found in session"})
+    
+    # Get domain info from Opensea
+    openseaInfo = requests.get(f"https://api.opensea.io/api/v2/chain/optimism/account/{address}/nfts?collection=handshake-slds",
+        headers={"Accept": "application/json",
+                 "x-api-key":openSeaAPIKey})
+    if openseaInfo.status_code != 200:
+        return jsonify({"error": "Failed to get domain info from Opensea"})
+    hnsid = openseaInfo.json()
+    for nft in hnsid["nfts"]:
+        if nft["name"] == domain:
+            # Add domain to the session
+            user = User.query.filter_by(username=domain).first()
+            if not user:
+                user = User(username=domain)
+                db.session.add(user)
+                db.session.commit()
+            session["id"] = user.id
+            session.permanent = True
+            return redirect("/")
+
+    return jsonify({"success": False, "error": "Domain not found"})
 
 @bp.route("/logout")
 def logout():
