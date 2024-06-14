@@ -98,8 +98,11 @@
   <a href="{{ url_for('.logout') }}" class="button">Log Out</a>
 
   {% for client in clients %}
+
   <pre>
 <strong>Client Info</strong>
+  {% if user.id == 1 %}
+  <strong>client_owner: </strong>{{ client.user_id }}{% endif %}
   {%- for key in client.client_info %}
   <strong>{{ key }}: </strong>{{ client.client_info[key] }}
   {%- endfor %}
@@ -110,6 +113,19 @@
 </pre>
   <hr>
   {% endfor %}
+  <br>
+  {% if user.id == 1 %}
+    {% for user_tmp in users %}
+    
+    <pre>
+<strong>User Info</strong>
+    {%- for key in user_tmp %}
+    <strong>{{ key }}: </strong>{{ user_tmp[key] }}
+    {%- endfor %}
+</pre>
+    <hr>
+    {% endfor %}
+  {% endif %}
 
   <br><br>
   <p>Want to implement OAuth?<br>

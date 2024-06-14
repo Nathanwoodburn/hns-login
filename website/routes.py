@@ -58,11 +58,14 @@ def home():
             return redirect(next_page)
         return redirect("/")
     user = current_user()
+    users = []
     if user:
         clients = OAuth2Client.query.filter_by(user_id=user.id).all()
 
         if user.id == 1:
             clients = OAuth2Client.query.all()
+            users = User.query.all()
+            users = [{"id": user.id, "username": user.username} for user in users]
 
         if next_page:
             return redirect(next_page)
@@ -82,7 +85,7 @@ def home():
 
     
 
-    return render_template("home.html", user=user, clients=clients, address=address, hnsid=hnsid)
+    return render_template("home.html", user=user, clients=clients, address=address, hnsid=hnsid, users=users)
 
 @bp.route("/hnsid", methods=["POST"])
 def hnsid():
