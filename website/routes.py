@@ -216,6 +216,7 @@ def txtLogin():
                 print(next_page)
                 if next_page and next_page != "None":
                     return redirect(next_page)
+                return redirect("/")
 
     return render_template("error.html",error="The domain wasn't able to be authenticated.",
                            message="<br>Double check the TXT record and try again",
@@ -278,6 +279,7 @@ def txtLoginDomain(domain):
                 print(next_page)
                 if next_page and next_page != "None":
                     return redirect(next_page)
+                return redirect("/")
 
     return render_template("error.html",error="The domain wasn't able to be authenticated.",
                            message="<br>Double check the TXT record and try again",
