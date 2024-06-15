@@ -62,6 +62,7 @@
       text-align: center;
       text-decoration: none;
     }
+
     a {
       color: white;
     }
@@ -77,17 +78,33 @@
     .login-option {
       margin-top: 20px;
     }
+
     select {
-        padding: 10px 20px;
-        font-size: 16px;
-        background-color: #333;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-        margin-right: 25px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-right: 25px;
     }
 
+    .centre {
+      display: block;
+      text-align: center;
+    }
+
+    input {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-right: 25px;
+    }
   </style>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 
 <body>
@@ -118,16 +135,16 @@
   {% endfor %}
   <br>
   {% if user.id == 1 %}
-    {% for user_tmp in users %}
-    
-    <pre>
+  {% for user_tmp in users %}
+
+  <pre>
 <strong>User Info</strong>
     {%- for key in user_tmp %}
     <strong>{{ key }}: </strong>{{ user_tmp[key] }}
     {%- endfor %}
 </pre>
-    <hr>
-    {% endfor %}
+  <hr>
+  {% endfor %}
   {% endif %}
 
   <br><br>
@@ -135,17 +152,49 @@
     Contact Nathan.Woodburn/ on any social media platform</p>
 
   {% else %}
+
   <h2>Login with your Handshake domain</h2>
-
-
-
-
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
 
   <div class="login-option">
-    <script type="text/javascript" src="https://auth.varo.domains/v1"></script>
-    <script>var varo = new Varo();</script>
-    <button class="loginbutton" onclick='varo.auth().then(auth => {
+    {% if domains %}
+    <p>Login using a TXT record</p>
+
+    <div style="text-align: center;margin-top: 25px; margin-bottom: 25px;">
+      <select id="TXTDomainDropdown">
+        {% for domain in domains %}
+        <option value="{{domain}}">{{domain}}</option>
+        {% endfor %}
+      </select>
+      <button onclick="TXTLoginSelect()">Login</button>
+    </div>
+    <script>
+      function TXTLoginSelect() {
+        var selectedNFT = document.getElementById("TXTDomainDropdown").value;
+        window.location.href = "/txt/" + selectedNFT + window.location.search;
+      }
+    </script>
+
+    <span class="centre">Login with a new domain?</span>
+    {% endif %}
+    <span class="centre">Add this TXT record to any domain or login with an existing domain in Varo Auth</span>
+    <div class="centre">
+      <pre style="display: inline;margin-right: 10px;">IDNS1 auth:login.hns.au={{uuid}}</pre>
+      <!-- Copy button -->
+      <button style="display: inline;" onclick="copyToClipboard('IDNS1 auth:login.hns.au={{uuid}}')">Copy</button>
+    </div>
+
+    <div class="centre" style="margin-top: 25px;">
+      <form action="/txt?next={{ next }}" method="post">
+        <input type="text" name="domain" placeholder="Enter your domain">
+        <button type="submit">Login</button>
+    </div>
+  </div>
+
+
+  <script type="text/javascript" src="https://auth.varo.domains/v1"></script>
+  <script>var varo = new Varo();</script>
+  <button class="loginbutton" onclick='varo.auth().then(auth => {
   if (auth.success) {
   // handle success by calling your api to update the users session
   $.post("/", JSON.stringify(auth.data), (response) => {
@@ -153,7 +202,7 @@
   });
   }
 });'>Login with Varo</button>
-  </div>
+
 
   <div class="login-option">
     <!-- Login for HNS.ID domains -->
@@ -216,42 +265,50 @@
 
     </script>
 
-
     {% if address %}
-    <h4 style="text-align: center;">Logged in as {{address}}</h4>
+
+
+    <h4 style="text-align: center;">Logged in with HNS.ID</h4>
     <span style="text-align: center;display: block;">Select a HNS.ID domain to log in with</span><br>
 
     <div style="text-align: center;">
-    <select id="nftDropdown">
-      {% for nft in hnsid.nfts %}
-          <option value="{{nft.name}}">{{nft.name}}</option>
-      {% endfor %}
-  </select>
-  <button onclick="HNSIDLoginSelect()">Login</button>
-</div>
-  <script>
+      <select id="nftDropdown">
+        {% for nft in hnsid.nfts %}
+        <option value="{{nft.name}}">{{nft.name}}</option>
+        {% endfor %}
+      </select>
+      <button onclick="HNSIDLoginSelect()">Login</button>
+    </div>
+    <script>
       function HNSIDLoginSelect() {
-          var selectedNFT = document.getElementById("nftDropdown").value;
-          window.location.href = "/hnsid/" + selectedNFT + window.location.search;
+        var selectedNFT = document.getElementById("nftDropdown").value;
+        window.location.href = "/hnsid/" + selectedNFT + window.location.search;
       }
-  </script>
-  
-
+    </script>
     <button class="loginbutton" onclick='javascript:loginETH();'>Login with another ETH address</button>
     {% else %}
     <button class="loginbutton" onclick='javascript:loginETH();'>Login with HNS.ID</button>
     {% endif %}
-
-
   </div>
 
+  <script>
+    function copyToClipboard(text) {
+      var dummy = document.createElement("textarea");
+      document.body.appendChild(dummy);
+      dummy.value = text;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+    }
+  </script>
 
   {% endif %}
 
 
 
   <div style="position: fixed; bottom: 0; width: 100%; text-align: center; background-color: #333; padding: 10px;">
-    Powered by <a href="https://auth.varo.domains/implement" target="_blank">Varo Auth</a>, <a href="https://hns.id/" target="_blank">HNS.ID</a> and <a href="https://nathan.woodburn.au" target="_blank">Nathan.Woodburn/</a>
+    Powered by <a href="https://auth.varo.domains/implement" target="_blank">Varo Auth</a>, <a href="https://hns.id/"
+      target="_blank">HNS.ID</a> and <a href="https://nathan.woodburn.au" target="_blank">Nathan.Woodburn/</a>
   </div>
   <div style="height: 5em;"></div>
 </body>
