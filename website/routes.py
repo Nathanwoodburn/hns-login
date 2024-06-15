@@ -217,7 +217,9 @@ def txtLogin():
                 if next_page and next_page != "None":
                     return redirect(next_page)
 
-    return redirect("/")
+    return render_template("error.html",error="The domain wasn't able to be authenticated.",
+                           message="<br>Double check the TXT record and try again",
+                           custom="<button onclick='window.location.reload();'>Try again</button>"), 200
         
 @bp.route("/txt/<domain>")
 def txtLoginDomain(domain):
@@ -277,7 +279,9 @@ def txtLoginDomain(domain):
                 if next_page and next_page != "None":
                     return redirect(next_page)
 
-    return redirect("/")
+    return render_template("error.html",error="The domain wasn't able to be authenticated.",
+                           message="<br>Double check the TXT record and try again",
+                           custom="<button onclick='window.location.reload();'>Try again</button>"), 200
 
 @bp.route("/logout")
 def logout():
@@ -500,5 +504,4 @@ def favicon():
 @bp.errorhandler(404)
 @bp.app_errorhandler(404)
 def page_not_found(e):
-    print(f'404 error: {e}')
-    return render_template("404.html"), 404
+    return render_template("error.html",error="404 - Page Not Found"), 404

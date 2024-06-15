@@ -110,7 +110,13 @@
 <body>
   <h1>HNS Login</h1>
 
-  <h2>404 - Page Not Found</h2>
+  <h2>{{error | safe}}</h2>
+  <p>{{message|safe}}</p>
+
+  <div style="text-align: center;">
+  {{custom|safe}}
+</div>
+
   <a href="/" class="button">Return to Home</a>
 
 
