@@ -114,10 +114,10 @@
   <p>Client Secret: {{secret}}</p>
 
   <h3 style="text-align: center;">URLS</h3>
-  <p>Authorization URL: <a href="{{url_for('.authorize')}}">{{url_for('.authorize',_external=True)}}</a></p>
-  <p>Token URL: <a href="{{url_for('.issue_token')}}">{{url_for('.issue_token',_external=True)}}</a></p>
-  <p>Revoke URL: <a href="{{url_for('.revoke_token')}}">{{url_for('.revoke_token',_external=True)}}</a></p>
-  <p>Discovery URL: <a href="{{url_for('.autodiscovery')}}">{{url_for('.autodiscovery',_external=True)}}</a></p>
+  <p>Authorization URL: <a href="{{url_for('.authorize',_scheme='https')}}">{{url_for('.authorize',_external=True,_scheme='https')}}</a></p>
+  <p>Token URL: <a href="{{url_for('.issue_token',_scheme='https')}}">{{url_for('.issue_token',_external=True,_scheme='https')}}</a></p>
+  <p>Revoke URL: <a href="{{url_for('.revoke_token',_scheme='https')}}">{{url_for('.revoke_token',_external=True,_scheme='https')}}</a></p>
+  <p>Discovery URL: <a href="{{url_for('.autodiscovery',_scheme='https')}}">{{url_for('.autodiscovery',_external=True,_scheme='https')}}</a></p>
 
   <br>
   <a href="{{url_for('.delete_client',client_id=id)}}" class="button">Delete Client</a>
