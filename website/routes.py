@@ -16,6 +16,7 @@ from requests_doh import DNSOverHTTPSSession, add_dns_provider
 from datetime import timedelta
 from eth_account.messages import encode_defunct
 from eth_account import Account
+import json
 
 
 
@@ -380,7 +381,7 @@ def create_client():
         "grant_types": split_by_crlf(form["grant_type"]),
         "redirect_uris": split_by_crlf(form["redirect_uri"]),
         "response_types": split_by_crlf(form["response_type"]),
-        "scope": form["scope"],
+        "scope": " ".join(form.getlist("scope")),
         "token_endpoint_auth_method": form["token_endpoint_auth_method"],
     }
     client.set_client_metadata(client_metadata)
@@ -392,7 +393,27 @@ def create_client():
 
     db.session.add(client)
     db.session.commit()
-    return redirect("/")
+    return redirect("/client/" + client_id)
+
+@bp.route("/client/<client_id>")
+def client(client_id):
+    user = current_user()
+    if not user:
+        return redirect("/")
+    
+    client:OAuth2Client = OAuth2Client.query.filter_by(client_id=client_id).first()
+    if not client:
+        return redirect("/")
+    
+    if client.user_id != user.id and user.id != 1:
+        return redirect("/")
+    
+    metadata = client.client_metadata
+    # Convert metadata to json
+    metadata = json.dumps(metadata, indent=4)
+
+    return render_template("client.html", client=metadata,id=client_id,
+                           secret=client.client_secret)
 
 
 @bp.route("/delete_client")
@@ -400,14 +421,18 @@ def delete_client():
     user = current_user()
     if not user:
         return redirect("/")
-    if user.id != 1:
-        return redirect("/")
 
     client_id = request.args.get("client_id")
-    client = OAuth2Client.query.filter_by(client_id=client_id).first()
-    if client:
-        db.session.delete(client)
-        db.session.commit()
+    client:OAuth2Client = OAuth2Client.query.filter_by(client_id=client_id).first()
+
+    if not client:
+        return redirect("/")
+    
+    if client.user_id != user.id and user.id != 1:
+        return redirect("/")
+    
+    db.session.delete(client)
+    db.session.commit()
     return redirect("/")
 
 

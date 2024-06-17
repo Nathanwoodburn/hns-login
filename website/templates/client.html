@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HNS Login</title>
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      /* Dark theme*/
+      background-color: #222;
+      color: #fff;
+    }
+
+    h1 {
+      margin: 0;
+      padding: 20px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+    }
+
+    h2 {
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    p {
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    form {
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    a.button {
+      display: block;
+      width: 200px;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    a {
+      color: white;
+    }
+
+    button.loginbutton {
+      /* Put in the centre of the screen */
+
+      margin-left: 50%;
+      margin-top: 20px;
+      transform: translateX(-50%);
+    }
+
+    .login-option {
+      margin-top: 20px;
+    }
+
+    select {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-right: 25px;
+    }
+
+    .centre {
+      display: block;
+      text-align: center;
+    }
+
+    input {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-right: 25px;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+
+<body>
+  <h1>HNS Login</h1>
+  <h2>Client Information</h2>
+  <p>Client ID: {{id}}</p>
+  <p>Client Secret: {{secret}}</p>
+
+  <h3 style="text-align: center;">URLS</h3>
+  <p>Authorization URL: <a href="{{url_for('.authorize')}}">{{url_for('.authorize',_external=True)}}</a></p>
+  <p>Token URL: <a href="{{url_for('.issue_token')}}">{{url_for('.issue_token',_external=True)}}</a></p>
+  <p>Revoke URL: <a href="{{url_for('.revoke_token')}}">{{url_for('.revoke_token',_external=True)}}</a></p>
+  <p>Discovery URL: <a href="{{url_for('.autodiscovery')}}">{{url_for('.autodiscovery',_external=True)}}</a></p>
+
+  <br>
+  <a href="{{url_for('.delete_client',client_id=id)}}" class="button">Delete Client</a>
+
+  <div style="position: fixed; bottom: 0; width: 100%; text-align: center; background-color: #333; padding: 10px;">
+    Powered by <a href="https://auth.varo.domains/implement" target="_blank">Varo Auth</a>, <a href="https://hns.id/"
+      target="_blank">HNS.ID</a> and <a href="https://nathan.woodburn.au" target="_blank">Nathan.Woodburn/</a>
+  </div>
+  <div style="height: 5em;"></div>
+</body>
+</html>

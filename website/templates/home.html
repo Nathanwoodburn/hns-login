@@ -117,6 +117,7 @@
 
   <a href="{{ url_for('.logout') }}" class="button">Log Out</a>
 
+  <a href="{{ url_for('.create_client') }}" class="button">Create an OAuth client</a>
   {% for client in clients %}
 
   <pre>
@@ -188,6 +189,7 @@
       <form action="/txt?next={{ next }}" method="post">
         <input type="text" name="domain" placeholder="Enter your domain">
         <button type="submit">Login</button>
+      </form>
     </div>
   </div>
 
@@ -277,7 +279,7 @@
         <option value="{{nft.name}}">{{nft.name}}</option>
         {% endfor %}
       </select>
-      <button onclick="HNSIDLoginSelect()">Login</button>
+      <button onclick="HNSIDLoginSelect();">Login</button>
     </div>
     <script>
       function HNSIDLoginSelect() {
