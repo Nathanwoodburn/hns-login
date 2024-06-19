@@ -1,11 +1,12 @@
 import time
+import datetime as dt
 from .varo_auth import flask_login as varo_auth_flask_login
 from flask import Blueprint, request, session, url_for, make_response
 from flask import render_template, redirect, jsonify, send_from_directory
 from werkzeug.security import gen_salt
 from authlib.integrations.flask_oauth2 import current_token
 from authlib.oauth2 import OAuth2Error
-from .models import db, User, OAuth2Client
+from .models import db, User, OAuth2Client, AuthTokens
 from .oauth2 import authorization, require_oauth
 import os
 import requests
@@ -453,6 +454,61 @@ def authorize():
 
     return authorization.create_authorization_response(grant_user=grant_user)
 
+@bp.route("/auth", methods=["GET", "POST"])
+def plainAuth():
+    user:User = current_user()
+    if not user:
+        return redirect(url_for("home.home", next=request.url))
+    
+    # Check for return URL
+    return_url = request.args.get("return")
+    if not return_url:
+        return render_template("error.html",error="No return URL specified")
+
+    # Get host from return URL
+    host = return_url.split("/")[2]
+    
+
+    if request.method == "GET":
+        # Custom grant
+        grant = {
+            "client":{
+                "client_name": host,
+            }
+        }
+        return render_template("authorize.html", user=user, grant=grant)
+
+    # Create a hex token for the user
+    token = gen_salt(24)
+
+    expiry = dt.datetime.now() + timedelta(days=7)
+    # Save the token in the database
+    auth_token = AuthTokens(service=host, user_name=user.username, access_token=token, refresh_token="", expires_at=expiry)
+    db.session.add(auth_token)
+    db.session.commit()
+
+    # Remove any stale tokens
+    AuthTokens.query.filter(AuthTokens.expires_at < time.time()).delete()
+    
+
+    return redirect(return_url+"?username="+user.username+"&token="+token)
+
+@bp.route("/auth/user")
+def authUser():
+    if "token" not in request.args:
+        return jsonify({"error": "No token specified"})
+    
+    token = request.args.get("token")
+    # Remove any stale tokens
+    AuthTokens.query.filter(AuthTokens.expires_at < time.time()).delete()
+
+    username = AuthTokens.query.filter_by(access_token=token).first()
+    if not username:
+        return jsonify({"error": "Invalid token"})
+    
+    user = User.query.filter_by(username=username.user_name).first()
+
+    return jsonify(get_user_info(user))
 
 @bp.route("/oauth/token", methods=["POST"])
 def issue_token():

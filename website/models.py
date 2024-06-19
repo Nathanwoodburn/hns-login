@@ -58,3 +58,17 @@ class OAuth2Token(db.Model, OAuth2TokenMixin):
             return False
         expires_at = self.issued_at + self.expires_in * 2
         return expires_at >= time.time()
+    
+
+class AuthTokens(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    service = db.Column(db.String(255))
+    user_name = db.Column(db.String(255))
+    access_token = db.Column(db.String(255))
+    refresh_token = db.Column(db.String(255))
+    expires_at = db.Column(db.Integer)
+
+    def is_refresh_token_active(self):
+        if self.revoked:
+            return False
+        return self.expires_at >= time.time()
