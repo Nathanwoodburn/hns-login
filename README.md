@@ -20,6 +20,32 @@ Set the following parameters:
 
 
 
+## Regular auth flow
+1. Redirect the user to `https://login.hns.au/auth?return=<return-url>`
+2. User logs in and will be returned to `https://<return-url>?username=<username>&token=<token>`
+3. Use the token to authenticate the user with `https://login.hns.au/auth/user?token=<token>`  
+   This will return the following json:  
+   ```json
+   {
+	"displayName": "Nathan.Woodburn/",
+	"email": "contact@nathan.woodburn.au",
+	"email_verified": false,
+	"family_name": "nathan.woodburn",
+	"given_name": "nathan.woodburn",
+	"id": 1,
+	"links": "https://woodburn",
+	"name": "Nathan.Woodburn/",
+	"nickname": "Nathan.Woodburn/",
+	"picture": "https://nathan.woodburn.au/assets/img/profile.png",
+	"preferred_username": "nathan.woodburn",
+	"profile": "https://login.hns.au/u/nathan.woodburn",
+	"sub": 1,
+	"uid": 1,
+	"username": "nathan.woodburn",
+	"website": "https://nathan.woodburn"
+    }
+   ```
+
 
 ## Deploy your own instance
 
