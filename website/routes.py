@@ -523,7 +523,7 @@ def authUser():
 def issue_token():
     try:
         resp = authorization.create_token_response()
-        print(json.dumps(resp, indent=4),flush=True)
+        print(resp,flush=True)
         return resp
     except OAuth2Error as error:
         print(json.dumps({
