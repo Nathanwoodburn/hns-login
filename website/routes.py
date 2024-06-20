@@ -524,13 +524,11 @@ def issue_token():
     try:
         resp = authorization.create_token_response()
         if hasattr(resp, 'json'):
-            print(resp.json(), flush=True)
-        elif hasattr(resp, 'content'):
+            print(resp.json, flush=True)
+        if hasattr(resp, 'content'):
             print(resp.content, flush=True)
-        elif hasattr(resp, 'data'):
+        if hasattr(resp, 'data'):
             print(resp.data, flush=True)
-        else:
-            print("Unknown response structure:", resp)
         return resp
     except OAuth2Error as error:
         print(json.dumps({
