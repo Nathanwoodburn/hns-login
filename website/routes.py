@@ -18,6 +18,7 @@ from datetime import timedelta
 from eth_account.messages import encode_defunct
 from eth_account import Account
 import json
+import urllib.parse
 
 
 
@@ -186,7 +187,10 @@ def home():
     if 'domains' in session:
         domains = session['domains']
 
-    
+    # URL encode the next page
+    if next_page:
+        next_page = urllib.parse.quote(next_page)
+
 
     return render_template("home.html", user=user, clients=clients,
                            address=address, hnsid=hnsid, users=users,
