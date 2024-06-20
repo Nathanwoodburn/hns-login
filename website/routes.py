@@ -523,12 +523,6 @@ def authUser():
 def issue_token():
     try:
         resp = authorization.create_token_response()
-        if hasattr(resp, 'json'):
-            print(resp.json, flush=True)
-        if hasattr(resp, 'content'):
-            print(resp.content, flush=True)
-        if hasattr(resp, 'data'):
-            print(resp.data, flush=True)
         return resp
     except OAuth2Error as error:
         print(json.dumps({
