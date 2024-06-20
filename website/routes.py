@@ -187,10 +187,9 @@ def home():
     if 'domains' in session:
         domains = session['domains']
 
-    # URL encode the next page
     if next_page:
-        next_page = urllib.parse.quote(next_page)
-
+        # find next in url
+        next_page = request.url.split("next=")[1]
 
     return render_template("home.html", user=user, clients=clients,
                            address=address, hnsid=hnsid, users=users,
