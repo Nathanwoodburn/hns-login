@@ -447,7 +447,11 @@ def authorize():
         try:
             grant = authorization.get_consent_grant(end_user=user)
         except OAuth2Error as error:
-            return error.error
+            return jsonify({
+                "error": error.error,
+                "description": error.description,
+                "uri": error.uri,
+            })
         return render_template("authorize.html", user=user, grant=grant)
 
     grant_user = user
