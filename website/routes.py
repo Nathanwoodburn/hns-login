@@ -32,7 +32,8 @@ restricted_keys = [
     "email_verified",
     "roles",
     "role",
-    "admin"
+    "admin",
+    "hemail"
 ]
 
 if not os.path.exists("website/avatars"):
@@ -80,6 +81,7 @@ def get_user_info(user:User) -> dict:
         "uid": user.id,
         "username": user.username,
         "email": f"{user.username}@login.hns.au",
+        "hemail": f"{user.username}@login.hns.au",
         "displayName": user.username + "/",
         "sub": user.id,
         "name": user.username,
