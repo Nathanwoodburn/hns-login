@@ -45,6 +45,12 @@ def current_user():
         return User.query.get(uid)
     return None
 
+def urlParse(url):
+    if url.startswith("https://"):
+        return url
+    if 'localhost' in url or '127.0.0.1' in url:
+        return url
+    return url.replace('http://','https://')
 
 def split_by_crlf(s):
     return [v for v in s.splitlines() if v]
@@ -444,7 +450,7 @@ def authorize():
     user = current_user()
     # if user log status is not true (Auth server), then to log it in
     if not user:
-        return redirect(url_for("home.home", next=request.url))
+        return redirect(url_for("home.home", next=urlParse(request.url))) # Force HTTPS
     if request.method == "GET":
         try:
             grant = authorization.get_consent_grant(end_user=user)
@@ -469,7 +475,7 @@ def authorize():
 def plainAuth():
     user:User = current_user()
     if not user:
-        return redirect(url_for("home.home", next=request.url))
+        return redirect(url_for("home.home", next=urlParse(request.url)))
     
     # Check for return URL
     return_url = request.args.get("return")
