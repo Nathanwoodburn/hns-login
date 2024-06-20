@@ -522,7 +522,9 @@ def authUser():
 @bp.route("/oauth/token", methods=["POST"])
 def issue_token():
     try:
-        return authorization.create_token_response()
+        resp = authorization.create_token_response()
+        print(json.dumps(resp, indent=4),flush=True)
+        return resp
     except OAuth2Error as error:
         print(json.dumps({
             "error": error.error,
