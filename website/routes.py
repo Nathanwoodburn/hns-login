@@ -447,6 +447,11 @@ def authorize():
         try:
             grant = authorization.get_consent_grant(end_user=user)
         except OAuth2Error as error:
+            print(json.dumps({
+                "error": error.error,
+                "description": error.description,
+                "uri": error.uri,
+            }, indent=4),flush=True)
             return jsonify({
                 "error": error.error,
                 "description": error.description,
@@ -516,7 +521,19 @@ def authUser():
 
 @bp.route("/oauth/token", methods=["POST"])
 def issue_token():
-    return authorization.create_token_response()
+    try:
+        return authorization.create_token_response()
+    except OAuth2Error as error:
+        print(json.dumps({
+            "error": error.error,
+            "description": error.description,
+            "uri": error.uri,
+        }, indent=4),flush=True)
+        return jsonify({
+            "error": error.error,
+            "description": error.description,
+            "uri": error.uri,
+        })
 
 
 @bp.route("/oauth/revoke", methods=["POST"])
