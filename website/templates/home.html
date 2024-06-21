@@ -234,7 +234,7 @@
             // Send the address to the server
             console.log('Sending address to server', address);
             // Sign a message
-            const message = 'I am signing my one-time nonce: ' + Math.floor(Math.random() * 1000000) + ' to log in to HNS Login as ' + address;
+            const message = 'I am signing this message to log in to HNS Login as ' + address + ': {{uuid}}';
             const signature = await ethereum.request({
               method: 'personal_sign',
               params: [message, address],

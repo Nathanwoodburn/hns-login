@@ -201,6 +201,15 @@ def hnsid():
     address = request.json.get("address")
     signature = request.json.get("signature")
     message = request.json.get("message")
+
+    # Make sure message is in the correct format
+    if not message.startswith("I am signing this message to log in to HNS Login as "):
+        print("Invalid message format")
+        return jsonify({"success": False})
+    if not message.endswith(session["uuid"]):
+        print("Invalid message format")
+        return jsonify({"success": False})
+
     # Verify the signature
     msg = encode_defunct(text=message)
     signer = Account.recover_message(msg, signature=signature).lower()
