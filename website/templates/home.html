@@ -271,8 +271,11 @@
 
 
     <h4 style="text-align: center;">Logged in with HNS.ID</h4>
-    <span style="text-align: center;display: block;">Select a HNS.ID domain to log in with</span><br>
+    {% if hnsid.nfts == [] %}    
+    <p style="text-align: center;">No HNS.ID domains found</p>
 
+    {% else %}
+    <span style="text-align: center;display: block;">Select a HNS.ID domain to log in with</span><br>
     <div style="text-align: center;">
       <select id="nftDropdown">
         {% for nft in hnsid.nfts %}
@@ -281,6 +284,7 @@
       </select>
       <button onclick="HNSIDLoginSelect();">Login</button>
     </div>
+    {% endif %}
     <script>
       function HNSIDLoginSelect() {
         var selectedNFT = document.getElementById("nftDropdown").value;
