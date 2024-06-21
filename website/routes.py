@@ -601,6 +601,8 @@ def profile(username):
 
 @bp.route("/u/<username>/avatar.png")
 def avatar(username):
+    username = username.lower().strip().replace("/", "")
+
     user = User.query.filter_by(username=username).first()
     if not user:
         print("User not found")
