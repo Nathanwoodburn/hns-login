@@ -263,7 +263,7 @@ def hnsid_domain(domain):
 @bp.route("/txt", methods=["POST"])
 def txtLogin():
     # Get domain from form
-    domain = request.form.get("domain")
+    domain = request.form.get("domain").lower().strip().replace("/", "")
     # Get uuid
     uuid = session["uuid"]
 
@@ -330,7 +330,7 @@ def txtLoginDomain(domain):
     # Get uuid
     uuid = session["uuid"]
 
-    idns_records = get_idns_records(domain)
+    idns_records = get_idns_records(domain.lower().strip().replace("/", ""))
     
 
     for record in idns_records:
@@ -593,6 +593,7 @@ def api_me():
 
 @bp.route("/u/<username>")
 def profile(username):
+    username = username.lower().strip().replace("/", "")
     user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({"error": "User not found"})
