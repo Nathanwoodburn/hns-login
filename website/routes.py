@@ -263,7 +263,7 @@ def hnsid_domain(domain):
 @bp.route("/txt", methods=["POST"])
 def txtLogin():
     # Get domain from form
-    domain = request.form.get("domain").lower().strip().replace("/", "")
+    domain = request.form.get("domain").lower().strip().replace("/", "").removesuffix(".")
     # Get uuid
     uuid = session["uuid"]
 
@@ -326,11 +326,11 @@ def txtLogin():
                            custom="<button onclick='window.location.reload();'>Try again</button>"), 200
         
 @bp.route("/txt/<domain>")
-def txtLoginDomain(domain):
+def txtLoginDomain(domain:str):
     # Get uuid
     uuid = session["uuid"]
 
-    idns_records = get_idns_records(domain.lower().strip().replace("/", ""))
+    idns_records = get_idns_records(domain.lower().strip().replace("/", "").removesuffix("."))
     
 
     for record in idns_records:
