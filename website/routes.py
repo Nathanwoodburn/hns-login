@@ -180,8 +180,10 @@ def home():
         openseaInfo = requests.get(f"https://api.opensea.io/api/v2/chain/optimism/account/{address}/nfts?collection=handshake-slds",
             headers={"Accept": "application/json",
                      "x-api-key":openSeaAPIKey})
-        if openseaInfo.status_code == 200:
-            hnsid = openseaInfo.json()
+        if openseaInfo.status_code != 200:
+            print("Failed to get HNS ID info")
+            print(openseaInfo.json())
+        hnsid = openseaInfo.json()
 
     domains = []
     if 'domains' in session:
@@ -563,6 +565,7 @@ def revoke_token():
 
 
 @bp.route("/discovery")
+@bp.route("/.well-known/openid-configuration")
 def autodiscovery():
     host = request.host
     discovery = {
