@@ -108,8 +108,11 @@ def get_user_info(user:User) -> dict:
         content = record.split(":")
         if len(content) > 2:
             content = ":".join(content[1:])
-        else:
+        elif len(content) == 2:
             content = content[1]
+        else:
+            print(f"Invalid record format\n{record}",flush=True)
+            continue
         key = content.split("=")[0].lower()
         value = content.split("=")[1]
         if type == "profile":

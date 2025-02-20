@@ -31,8 +31,6 @@
     }
 
     p {
-      margin: 0;
-      padding: 20px;
       text-align: center;
     }
 
@@ -45,8 +43,10 @@
       font-size: 16px;
       background-color: #333;
       color: #fff;
-      border: none;
+      border: 1px solid #000;
+      border-radius: 5px;
       cursor: pointer;
+      margin: 10px;
     }
 
     a.button {
@@ -57,7 +57,6 @@
       font-size: 16px;
       background-color: #333;
       color: #fff;
-      border: none;
       cursor: pointer;
       text-align: center;
       text-decoration: none;
@@ -69,7 +68,6 @@
 
     button.loginbutton {
       /* Put in the centre of the screen */
-
       margin-left: 50%;
       margin-top: 20px;
       transform: translateX(-50%);
@@ -84,7 +82,8 @@
       font-size: 16px;
       background-color: #333;
       color: #fff;
-      border: none;
+      border: 1px solid #000;
+      border-radius: 5px;
       cursor: pointer;
       margin-right: 25px;
     }
@@ -95,13 +94,22 @@
     }
 
     input {
-      padding: 10px 20px;
+      padding: 10px 5px;
       font-size: 16px;
       background-color: #333;
       color: #fff;
-      border: none;
+      border: 1px solid #000;
+      border-radius: 5px;
       cursor: pointer;
       margin-right: 25px;
+    }
+
+    .card {
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #333;
+      width: fit-content;
+      margin: auto;
     }
   </style>
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -155,44 +163,43 @@
   {% else %}
 
   <h2>Login with your Handshake domain</h2>
-  
+
 
   <div class="login-option">
-    {% if domains %}
-    <p>Login using a TXT record</p>
+    <div class="centre card">
+      <p>Login using a TXT record</p>
+      <span class="centre">Add this TXT record to any domain to verify</span>
+      <div class="centre">
+        <pre style="display: inline;margin-right: 10px;">IDNS1 auth:login.hns.au={{uuid}}</pre>
+        <!-- Copy button -->
+        <button style="display: inline;" onclick="copyToClipboard('IDNS1 auth:login.hns.au={{uuid}}')">Copy</button>
+      </div>
+      <div class="centre">
+        <form action="/txt?next={{ next }}" method="post">
+          <input type="text" name="domain" placeholder="Enter your domain">
+          <button type="submit">Login</button>
+        </form>
+      </div>
 
-    <div style="text-align: center;margin-top: 25px; margin-bottom: 25px;">
-      <select id="TXTDomainDropdown">
-        {% for domain in domains %}
-        <option value="{{domain}}">{{domain}}</option>
-        {% endfor %}
-      </select>
-      <button onclick="TXTLoginSelect()">Login</button>
-    </div>
-    <script>
-      function TXTLoginSelect() {
-        var selectedNFT = document.getElementById("TXTDomainDropdown").value;
-        window.location.href = "/txt/" + selectedNFT + window.location.search;
-      }
-    </script>
-
-    <span class="centre">Login with a new domain?</span>
-    {% endif %}
-    <span class="centre">Add this TXT record to any domain or login with an existing domain in Varo Auth</span>
-    <div class="centre">
-      <pre style="display: inline;margin-right: 10px;">IDNS1 auth:login.hns.au={{uuid}}</pre>
-      <!-- Copy button -->
-      <button style="display: inline;" onclick="copyToClipboard('IDNS1 auth:login.hns.au={{uuid}}')">Copy</button>
-    </div>
-
-    <div class="centre" style="margin-top: 25px;">
-      <form action="/txt?next={{ next }}" method="post">
-        <input type="text" name="domain" placeholder="Enter your domain">
-        <button type="submit">Login</button>
-      </form>
+      {% if domains %}
+      <div style="text-align: center;margin-top: 30px;">
+        <p>Login with a previously verified domain</p>
+        <select id="TXTDomainDropdown">
+          {% for domain in domains %}
+          <option value="{{domain}}">{{domain}}</option>
+          {% endfor %}
+        </select>
+        <button onclick="TXTLoginSelect()">Login</button>
+      </div>
+      <script>
+        function TXTLoginSelect() {
+          var selectedDomain = document.getElementById("TXTDomainDropdown").value;
+          window.location.href = "/txt/" + selectedDomain + window.location.search;
+        }
+      </script>
+      {% endif %}
     </div>
   </div>
-
 
   <script type="text/javascript" src="https://auth.varo.domains/v1"></script>
   <script>var varo = new Varo();</script>
@@ -268,12 +275,9 @@
     </script>
 
     {% if address %}
-
-
     <h4 style="text-align: center;">Logged in with HNS.ID</h4>
-    {% if hnsid.nfts == [] %}    
-    <p style="text-align: center;">No HNS.ID domains found</p>
-
+    {% if hnsid.nfts == [] %}
+    <p style="text-align: center;">No HNS.ID domains found<br>Make sure the HNS.ID domains aren't hidden on Opensea</p>
     {% else %}
     <span style="text-align: center;display: block;">Select a HNS.ID domain to log in with</span><br>
     <div style="text-align: center;">
