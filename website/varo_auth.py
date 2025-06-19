@@ -10,7 +10,7 @@ def flask_login(request):
     return login(auth_request)
 
 def login(request):
-    r = requests.get(f'https://auth.varo.domains/verify/{request}')
+    r = requests.get(f'https://auth.shakestation.io/verify/{request}')
     r = r.json()
     if r['success'] == False:
         return False
