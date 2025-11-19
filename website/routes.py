@@ -1,7 +1,7 @@
 import time
 import datetime as dt
 from .varo_auth import flask_login as varo_auth_flask_login
-from flask import Blueprint, request, session, url_for, make_response
+from flask import Blueprint, request, session, url_for
 from flask import render_template, redirect, jsonify, send_from_directory
 from werkzeug.security import gen_salt
 from authlib.integrations.flask_oauth2 import current_token
@@ -18,7 +18,6 @@ from datetime import timedelta
 from eth_account.messages import encode_defunct
 from eth_account import Account
 import json
-import urllib.parse
 
 
 
@@ -60,7 +59,7 @@ def get_idns_records(domain:str) -> list:
     query = dns.message.make_query(domain, dns.rdatatype.TXT)
     dns_request = query.to_wire()
     # Send the DNS query over HTTPS
-    response = requests.post('https://hnsdoh.com/dns-query', data=dns_request, headers={'Content-Type': 'application/dns-message'})
+    response = requests.post('https://au.hnsdoh.com/dns-query', data=dns_request, headers={'Content-Type': 'application/dns-message'})
     # Parse the DNS response
     dns_response = dns.message.from_wire(response.content)
     # Loop over TXT records and look for profile 
@@ -145,7 +144,7 @@ def home():
 
     if request.method == "POST":
         auth = varo_auth_flask_login(request)
-        if auth == False:
+        if not auth:
             return redirect("/?error=login_failed")
         print(auth)
         user = User.query.filter_by(username=auth).first()
@@ -267,20 +266,23 @@ def hnsid_domain(domain):
 
 @bp.route("/txt", methods=["POST"])
 def txtLogin():
-    # Get domain from form
-    domain = request.form.get("domain").lower().strip().replace("/", "").removesuffix(".")
-    # Get uuid
-    uuid = session["uuid"]
 
-    query = dns.message.make_query(domain, dns.rdatatype.TXT)
-    dns_request = query.to_wire()
-
-    # Send the DNS query over HTTPS
-    response = requests.post('https://hnsdoh.com/dns-query', data=dns_request, headers={'Content-Type': 'application/dns-message'})
-
-    # Parse the DNS response
-    dns_response = dns.message.from_wire(response.content)
-
+    try:
+        # Get domain from form
+        domain = request.form.get("domain").lower().strip().replace("/", "").removesuffix(".")
+        # Get uuid
+        uuid = session["uuid"]
+        query = dns.message.make_query(domain, dns.rdatatype.TXT)
+        dns_request = query.to_wire()
+        # Send the DNS query over HTTPS
+        response = requests.post('https://au.hnsdoh.com/dns-query', data=dns_request, headers={'Content-Type': 'application/dns-message'})
+        # Parse the DNS response
+        dns_response = dns.message.from_wire(response.content)
+    except Exception as e:
+        print(f"Error fetching DNS records: {e}")
+        return render_template("error.html",error="The domain wasn't able to be authenticated.",
+                           message="<br>Double check the TXT record and try again.",
+                           custom="<button onclick='window.location.reload();'>Try again</button>"), 200
     # Loop over TXT records and look for profile avatar
     idns_records = []
     for record in dns_response.answer:
@@ -623,7 +625,7 @@ def avatar(username):
     dns_request = query.to_wire()
 
     # Send the DNS query over HTTPS
-    response = requests.post('https://hnsdoh.com/dns-query', data=dns_request, headers={'Content-Type': 'application/dns-message'})
+    response = requests.post('https://au.hnsdoh.com/dns-query', data=dns_request, headers={'Content-Type': 'application/dns-message'})
 
     # Parse the DNS response
     dns_response = dns.message.from_wire(response.content)
@@ -640,7 +642,7 @@ def avatar(username):
     
     if avatar_url != "":
         # Download the avatar using DNS-over-HTTPS
-        add_dns_provider("hns", "https://hnsdoh.com/dns-query")
+        add_dns_provider("hns", "https://au.hnsdoh.com/dns-query")
         session = DNSOverHTTPSSession(provider="hns")
         response = session.get(avatar_url)
         with open(f"website/avatars/{username}.png", "wb") as f:

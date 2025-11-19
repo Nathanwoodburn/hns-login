@@ -12,7 +12,7 @@ def flask_login(request):
 def login(request):
     r = requests.get(f'https://auth.shakestation.io/verify/{request}')
     r = r.json()
-    if r['success'] == False:
+    if not r['success']:
         return False
     
     if 'data' in r:
